@@ -3,7 +3,7 @@
 	"Version": 1,
 	"VersionName": "1.0",
 	"FriendlyName": "Editor Content Validation",
-	"Description": "Adds a dedicated button to the toolbar that lets you validate all currently checked out files.",
+	"Description": "Adds a dedicated button to the toolbar that lets you validate all currently checked out files",
 	"Category": "Editor",
 	"CreatedBy": "MajorT",
 	"CreatedByURL": "",
