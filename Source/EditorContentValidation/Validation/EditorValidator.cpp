@@ -42,6 +42,7 @@ namespace EditorValidatorVariables
 		ECVF_Default
 	);
 
+
 	static int32 MaxAssetsChangedByAHeader = 200;
 	static FAutoConsoleVariableRef CVarMaxAssetsChangedByAHeader
 	(
@@ -110,57 +111,57 @@ void UEditorValidator::ValidateCheckedOutContent(bool bInteractive, const EDataV
 			else if (Filename.EndsWith(TEXT(".h")))
 			{
 				// Source code header changes for classes may cause issues in assets based on those classes
-				UEditorValidator::GetChangedAssetsForCode(AssetRegistryModule.Get(), Filename, ChangedPackageNames);
+				GetChangedAssetsForCode(AssetRegistryModule.Get(), Filename, ChangedPackageNames);
 			}
 		}
+	}
 
-		bool bAnyIssuesFound = false;
-		TArray<FString> AllWarningsAndErrors;
-		{
-			if (bInteractive)
-			{
-				bAllowFullValidationInEditor = true;
-
-				// We will be flushing shader compile as we load materials, so don't let other shader warnings be attributed incorrectly to the package that is loading.
-				if (GShaderCompilingManager)
-				{
-					FScopedSlowTask SlowTask(0.f, LOCTEXT("CompilingShadersBeforeCheckingContentTask", "Finishing shader compiles before checking content..."));
-					SlowTask.MakeDialog();
-					GShaderCompilingManager->FinishAllCompilation();
-				}
-			}
-		}
-		{
-			FScopedSlowTask SlowTask(0.f, LOCTEXT("CheckingContentTask", "Checking content..."));
-			SlowTask.MakeDialog();
-			if (!ValidatePackages(ChangedPackageNames, DeletedPackageNames, EditorValidatorVariables::MaxPackagesToLoad, AllWarningsAndErrors, InValidationUsecase))
-			{
-				bAnyIssuesFound = true;
-			}
-		}
-		{
-			FEditorValidationMessageGatherer ScopedMessageGatherer;
-			if (!ValidateProjectSettings())
-			{
-				bAnyIssuesFound = true;
-			}
-			AllWarningsAndErrors.Append(ScopedMessageGatherer.GetAllWarningsAndErrors());
-		}
-
+	bool bAnyIssuesFound = false;
+	TArray<FString> AllWarningsAndErrors;
+	{
 		if (bInteractive)
 		{
-			if (AllWarningsAndErrors.Num() != 0)
+			bAllowFullValidationInEditor = true;
+
+			// We will be flushing shader compile as we load materials, so don't let other shader warnings be attributed incorrectly to the package that is loading.
+			if (GShaderCompilingManager)
 			{
-				FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ContentValidationFailed", "!!!!!!! Your checked out content has issues. Don't submit until they are fixed !!!!!!!\r\n\r\nSee the MessageLog and OutputLog for details"));
+				FScopedSlowTask SlowTask(0.f, LOCTEXT("CompilingShadersBeforeCheckingContentTask", "Finishing shader compiles before checking content..."));
+				SlowTask.MakeDialog();
+				GShaderCompilingManager->FinishAllCompilation();
 			}
-			else if (bAnyIssuesFound)
-			{
-				FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ContentValidationFailedWithNoMessages", "No errors or warnings were found, but there was an error return code. Look in the OutputLog and log file for details. You may need engineering help."));
-			}
-			else
-			{
-				FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ContentValidationPassed", "All checked out content passed. Nice job."));
-			}
+		}
+	}
+	{
+		FScopedSlowTask SlowTask(0.f, LOCTEXT("CheckingContentTask", "Checking content..."));
+		SlowTask.MakeDialog();
+		if (!ValidatePackages(ChangedPackageNames, DeletedPackageNames, EditorValidatorVariables::MaxPackagesToLoad, AllWarningsAndErrors, InValidationUsecase))
+		{
+			bAnyIssuesFound = true;
+		}
+	}
+	{
+		FEditorValidationMessageGatherer ScopedMessageGatherer;
+		if (!ValidateProjectSettings())
+		{
+			bAnyIssuesFound = true;
+		}
+		AllWarningsAndErrors.Append(ScopedMessageGatherer.GetAllWarningsAndErrors());
+	}
+
+	if (bInteractive)
+	{
+		if (AllWarningsAndErrors.Num() != 0)
+		{
+			FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ContentValidationFailed", "!!!!!!! Your checked out content has issues. Don't submit until they are fixed !!!!!!!\r\n\r\nSee the MessageLog and OutputLog for details"));
+		}
+		else if (bAnyIssuesFound)
+		{
+			FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ContentValidationFailedWithNoMessages", "No errors or warnings were found, but there was an error return code. Look in the OutputLog and log file for details. You may need engineering help."));
+		}
+		else
+		{
+			FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ContentValidationPassed", "All checked out content passed. Nice job."));
 		}
 	}
 }
@@ -501,6 +502,16 @@ bool UEditorValidator::CanValidateAsset_Implementation(UObject* InAsset) const
 	}
 	
 	return false;
+}
+
+int32 UEditorValidator::GetMaxPackagesToLoad()
+{
+	return EditorValidatorVariables::MaxPackagesToLoad;
+}
+
+int32 UEditorValidator::GetMaxAssetsChangedByAHeader()
+{
+	return EditorValidatorVariables::MaxAssetsChangedByAHeader;
 }
 
 #undef LOCTEXT_NAMESPACE

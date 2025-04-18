@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "EditorValidatorBase.h"
+#include "Misc/OutputDevice.h"
 
 #include "EditorValidator.generated.h"
 
@@ -104,4 +105,8 @@ private:
 	 * This is not okay for fast operations like saving, but is fine for slower "check everything thoroughly" tests
 	 */
 	static bool bAllowFullValidationInEditor;
+
+public:
+	static int32 GetMaxPackagesToLoad();
+	static int32 GetMaxAssetsChangedByAHeader();
 };
