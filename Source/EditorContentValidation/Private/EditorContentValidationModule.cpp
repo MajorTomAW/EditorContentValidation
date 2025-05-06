@@ -58,7 +58,7 @@ void FEditorContentValidationModule::ShutdownModule()
 void FEditorContentValidationModule::RegisterEditorToolbarMenus()
 {
 	UToolMenu* ToolbarMenu = UToolMenus::Get()->ExtendMenu("LevelEditor.LevelEditorToolBar.PlayToolBar");
-	FToolMenuSection& Section = ToolbarMenu->AddSection("PlayGameExtensions", TAttribute<FText>(), FToolMenuInsert("Play", EToolMenuInsertType::After));
+	FToolMenuSection& Section = ToolbarMenu->AddSection("PlayGameExtensions", TAttribute<FText>(), FToolMenuInsert("Play", EToolMenuInsertType::Last));
 
 	Section.AddDynamicEntry("ContentValidationCommands",
 		FNewToolMenuSectionDelegate::CreateLambda([](FToolMenuSection& InSection)
